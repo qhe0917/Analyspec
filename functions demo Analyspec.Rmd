@@ -1,0 +1,43 @@
+---
+title: "functions demo"
+author: "qh"
+date: "5/1/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+##Functions demo
+```{r}
+library(tidyverse)
+library(plyr)
+library(Analyspec)
+#read spectrum from folder
+path<-"/Users/qinghe/Desktop/R/3 Enzyme Raman /2018/6-15 onion cell/onion cell 6-15"
+spec<-readfiles(path)
+#read information
+info<-getinfo(path,c("substrate","nanoparticels","enzyme","sample"),sep ="[:punct:]")
+#transpose readed spectrum
+spc<- spec %>%t() %>% as.data.frame() %>%
+    set_names(.[1,]) %>% slice(-1) 
+#combine the info in wide form
+fulldfW <- cbind(info,spc)
+#in long form
+fulldfL <- fulldfW %>% gather(wtno,int,colnames(spc))
+#spectrum smoothing
+smt<-smooth_spc(fulldfW,10)
+#baseline correction, this function works for wide form
+library(baseline)
+spc_bsl<- baseline_corrt(smt, method ='modpolyfit',degree = 12, tol = 0.001, rep = 100)
+sp_bsl<-cbind(spc_bsl[[1]],spc_bsl[[2]]@corrected)
+colnames(sp_bsl)<-c(colnames(info),colnames(spc))
+#intensity normalization
+normI<-intensitynorm(sp_bsl)
+#peak normalization
+normP <- peaknorm(sp_bsl,c(400,500))
+#area normalization
+normA<- areanorm(sp_bsl)
+```
