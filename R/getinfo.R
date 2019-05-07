@@ -10,7 +10,7 @@
 
 library(stringr)
 #when names have the same format, seperated by the same character, this function can be used to quickly transfer names into colums.
-getinfo<- function (path = getwd() ,groups = NA, sep = "[:punct:]"){
+getinfo<- function (path = getwd() ,groups = NULL, sep = "[:punct:]"){
   path=path
   pathnow<-getwd()
   getnm <- list.files(path = path)
